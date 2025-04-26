@@ -1,6 +1,7 @@
 package main
 
 import (
+	"blue/lexer"
 	"fmt"
 	"io"
 	"os"
@@ -23,10 +24,15 @@ func main() {
 	}
 	defer file.Close()
 
-	data, err := io.ReadAll(file)
+	source, err := io.ReadAll(file)
 	if err != nil {
 		die("Failed to read file: " + err.Error())
 	}
-	fmt.Print(string(data))
+	fmt.Printf("LEXER: \n")
 
+	tokens := lexer.NewLexer(source).Tokenize()
+
+	for _, v := range tokens {
+		fmt.Printf("%+v\n", v)
+	}
 }
