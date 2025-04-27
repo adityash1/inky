@@ -63,16 +63,18 @@ const (
 
 type Token struct {
 	Type   TokenType
-	Lexeme []byte
+	Lexeme string
+	Line   int
 }
 
-func NewToken(token_type TokenType, lexeme []byte) *Token {
+func NewToken(token_type TokenType, lexeme string, line int) *Token {
 	return &Token{
 		Type:   token_type,
 		Lexeme: lexeme,
+		Line:   line,
 	}
 }
 
 func (t *Token) String() string {
-	return fmt.Sprintf("(%s, %q)", t.Type, t.Lexeme)
+	return fmt.Sprintf("(%s, %q)", t.Type, t.Lexeme, t.Line)
 }

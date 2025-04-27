@@ -33,6 +33,6 @@ func main() {
 	tokens := lexer.NewLexer(source).Tokenize()
 
 	for _, v := range tokens {
-		fmt.Printf("%+v\n", v)
+		fmt.Printf("%v\n", v)
 	}
 }
