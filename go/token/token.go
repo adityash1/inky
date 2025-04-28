@@ -76,5 +76,5 @@ func NewToken(token_type TokenType, lexeme string, line int) *Token {
 }
 
 func (t *Token) String() string {
-	return fmt.Sprintf("(%s, %q)", t.Type, t.Lexeme, t.Line)
+	return fmt.Sprintf("(%s, %q, %d)", t.Type, t.Lexeme, t.Line)
 }

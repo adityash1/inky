@@ -1,6 +1,8 @@
 package lexer
 
-import "blue/token"
+import (
+	"blue/token"
+)
 
 type Lexer struct {
 	tokens []token.Token
@@ -29,7 +31,7 @@ func (l *Lexer) Tokenize() []token.Token {
 		} else if ch == ' ' || ch == '\t' || ch == '\r' {
 			continue
 		} else if ch == '#' {
-			for l.peek() != '\n' {
+			for l.peek() != '\n' && !(l.curr >= len(l.source)) {
 				l.advance()
 			}
 		} else if ch == '(' {
@@ -61,17 +63,55 @@ func (l *Lexer) Tokenize() []token.Token {
 		} else if ch == '%' {
 			l.add_token(token.TOK_MOD)
 		} else if ch == ':' {
-			l.add_token(token.TOK_COLON)
+			l.match('=')
+			if l.match('=') {
+				l.add_token(token.TOK_ASSIGN)
+			} else {
+				l.add_token(token.TOK_COLON)
+			}
 		} else if ch == ';' {
 			l.add_token(token.TOK_SEMICOLON)
 		} else if ch == '?' {
 			l.add_token(token.TOK_QUESTION)
-		} else if ch == '~' {
-			l.add_token(token.TOK_NOT)
 		} else if ch == '>' {
-			l.add_token(token.TOK_GT)
+			if l.match('=') {
+				l.add_token(token.TOK_GE)
+			} else if l.match('>') {
+				l.add_token(token.TOK_GTGT)
+			} else {
+				l.add_token(token.TOK_GT)
+			}
 		} else if ch == '<' {
-			l.add_token(token.TOK_LT)
+			if l.match('=') {
+				l.add_token(token.TOK_LE)
+			} else if l.match('<') {
+				l.add_token(token.TOK_LTLT)
+			} else {
+				l.add_token(token.TOK_LT)
+			}
+		} else if ch == '=' {
+			if l.match('=') {
+				l.add_token(token.TOK_EQ)
+			}
+		} else if ch == '~' {
+			if l.match('=') {
+				l.add_token(token.TOK_NE)
+			} else {
+				l.add_token(token.TOK_NOT)
+			}
+		} else if isDigit(ch) {
+			for isDigit(l.peek()) {
+				l.advance()
+			}
+			if l.peek() == '.' && isDigit(l.lookahead()) {
+				l.advance()
+				for isDigit(l.peek()) {
+					l.advance()
+				}
+				l.add_token(token.TOK_FLOAT)
+			} else {
+				l.add_token(token.TOK_INTEGER)
+			}
 		}
 	}
 	return l.tokens
@@ -88,6 +128,9 @@ func (l *Lexer) add_token(t token.TokenType) {
 }
 
 func (l *Lexer) peek() byte {
+	if l.curr >= len(l.source) {
+		return '\x00' // null byte, safe end-of-stream marker
+	}
 	return l.source[l.curr]
 }
 
@@ -95,6 +138,9 @@ func (l *Lexer) lookahead(n ...int) byte {
 	count := 1
 	if len(n) > 0 {
 		count = n[0]
+	}
+	if l.curr+count >= len(l.source) {
+		return '\x00'
 	}
 	return l.source[l.curr+count]
 }
@@ -108,4 +154,8 @@ func (l *Lexer) match(expected byte) bool {
 	}
 	l.curr++
 	return true
+}
+
+func isDigit(ch byte) bool {
+	return ch >= '0' && ch <= '9'
 }
