@@ -2,6 +2,9 @@ package lexer
 
 import (
 	"blue/token"
+	"fmt"
+	"os"
+	"unicode"
 )
 
 type Lexer struct {
@@ -53,7 +56,13 @@ func (l *Lexer) Tokenize() []token.Token {
 		} else if ch == '+' {
 			l.add_token(token.TOK_PLUS)
 		} else if ch == '-' {
-			l.add_token(token.TOK_MINUS)
+			if l.match('-') {
+				for l.peek() != '\n' && !(l.curr >= len(l.source)) {
+					l.advance()
+				}
+			} else {
+				l.add_token(token.TOK_MINUS)
+			}
 		} else if ch == '*' {
 			l.add_token(token.TOK_STAR)
 		} else if ch == '/' {
@@ -100,18 +109,13 @@ func (l *Lexer) Tokenize() []token.Token {
 				l.add_token(token.TOK_NOT)
 			}
 		} else if isDigit(ch) {
-			for isDigit(l.peek()) {
-				l.advance()
-			}
-			if l.peek() == '.' && isDigit(l.lookahead()) {
-				l.advance()
-				for isDigit(l.peek()) {
-					l.advance()
-				}
-				l.add_token(token.TOK_FLOAT)
-			} else {
-				l.add_token(token.TOK_INTEGER)
-			}
+			l.handleNumber()
+		} else if ch == '"' || ch == '\'' {
+			l.handleString(ch)
+		} else if unicode.IsLetter(rune(ch)) || ch == '_' {
+			l.handleIdentifier()
+		} else {
+			die(fmt.Sprintf("[Line %d] Error at %d: Unexpected character.", l.line, ch))
 		}
 	}
 	return l.tokens
@@ -156,6 +160,50 @@ func (l *Lexer) match(expected byte) bool {
 	return true
 }
 
+func (l *Lexer) handleNumber() {
+	for isDigit(l.peek()) {
+		l.advance()
+	}
+	if l.peek() == '.' && isDigit(l.lookahead()) {
+		l.advance()
+		for isDigit(l.peek()) {
+			l.advance()
+		}
+		l.add_token(token.TOK_FLOAT)
+	} else {
+		l.add_token(token.TOK_INTEGER)
+	}
+}
+
 func isDigit(ch byte) bool {
 	return ch >= '0' && ch <= '9'
+}
+
+func (l *Lexer) handleString(start_quote byte) {
+	for l.peek() != start_quote && !(l.curr >= len(l.source)) {
+		l.advance()
+	}
+	if l.curr >= len(l.source) {
+		die(fmt.Sprintf("[Line %d] Unterminated string.", l.line))
+	}
+	l.advance()
+	l.add_token(token.TOK_STRING)
+}
+
+func (l *Lexer) handleIdentifier() {
+	for (unicode.IsLetter(rune(l.peek())) || unicode.IsDigit(rune(l.peek()))) || l.peek() == '_' {
+		l.advance()
+	}
+	text := l.source[l.start:l.curr]
+	keyword_type := token.Keywords[string(text)]
+	if keyword_type == "" {
+		l.add_token(token.TOK_IDENTIFIER)
+	} else {
+		l.add_token(keyword_type)
+	}
+}
+
+func die(msg string) {
+	fmt.Fprintln(os.Stderr, msg)
+	os.Exit(1)
 }

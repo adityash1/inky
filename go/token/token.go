@@ -61,6 +61,25 @@ const (
 	TOK_RET     TokenType = "TOK_RET"
 )
 
+var Keywords = map[string]TokenType{
+	"if":      TOK_IF,
+	"then":    TOK_THEN,
+	"else":    TOK_ELSE,
+	"true":    TOK_TRUE,
+	"false":   TOK_FALSE,
+	"and":     TOK_AND,
+	"or":      TOK_OR,
+	"while":   TOK_WHILE,
+	"do":      TOK_DO,
+	"for":     TOK_FOR,
+	"func":    TOK_FUNC,
+	"null":    TOK_NULL,
+	"end":     TOK_END,
+	"print":   TOK_PRINT,
+	"println": TOK_PRINTLN,
+	"ret":     TOK_RET,
+}
+
 type Token struct {
 	Type   TokenType
 	Lexeme string
