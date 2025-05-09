@@ -2,6 +2,7 @@ package main
 
 import (
 	"blue/lexer"
+	"blue/parser"
 	"fmt"
 	"io"
 	"os"
@@ -28,6 +29,7 @@ func main() {
 	if err != nil {
 		die("Failed to read file: " + err.Error())
 	}
+
 	fmt.Printf("LEXER: \n")
 
 	tokens := lexer.NewLexer(source).Tokenize()
@@ -35,4 +37,8 @@ func main() {
 	for _, v := range tokens {
 		fmt.Printf("%v\n", v)
 	}
+
+	fmt.Printf("Parsed Ast: \n")
+	ast := parser.NewParser(tokens).Parse()
+	fmt.Printf("%v", ast)
 }
