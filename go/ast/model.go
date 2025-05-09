@@ -1,4 +1,4 @@
-package model
+package ast
 
 import (
 	"blue/token"
