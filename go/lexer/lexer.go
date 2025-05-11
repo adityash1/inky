@@ -2,8 +2,8 @@ package lexer
 
 import (
 	"blue/token"
+	"blue/utils"
 	"fmt"
-	"os"
 	"unicode"
 )
 
@@ -115,7 +115,7 @@ func (l *Lexer) Tokenize() []token.Token {
 		} else if unicode.IsLetter(rune(ch)) || ch == '_' {
 			l.handleIdentifier()
 		} else {
-			die(fmt.Sprintf("[Line %d] Error at %d: Unexpected character.", l.line, ch))
+			utils.LexingError(fmt.Sprintf("Error at %s: Unexpected character.", string(ch)), l.line)
 		}
 	}
 	return l.tokens
@@ -184,7 +184,7 @@ func (l *Lexer) handleString(start_quote byte) {
 		l.advance()
 	}
 	if l.curr >= len(l.source) {
-		die(fmt.Sprintf("[Line %d] Unterminated string.", l.line))
+		utils.LexingError("Unterminated string.", l.line)
 	}
 	l.advance()
 	l.add_token(token.TOK_STRING)
@@ -201,9 +201,4 @@ func (l *Lexer) handleIdentifier() {
 	} else {
 		l.add_token(keyword_type)
 	}
-}
-
-func die(msg string) {
-	fmt.Fprintln(os.Stderr, msg)
-	os.Exit(1)
 }

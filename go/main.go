@@ -3,6 +3,7 @@ package main
 import (
 	"blue/lexer"
 	"blue/parser"
+	"blue/utils"
 	"fmt"
 	"io"
 	"os"
@@ -30,7 +31,14 @@ func main() {
 		die("Failed to read file: " + err.Error())
 	}
 
-	fmt.Printf("LEXER: \n")
+	utils.ColorPrint(utils.GREEN, "\n---------------------------\n")
+	utils.ColorPrint(utils.GREEN, "Source:")
+	utils.ColorPrint(utils.GREEN, "\n---------------------------\n")
+	fmt.Print(string(source))
+
+	utils.ColorPrint(utils.GREEN, "\n\n---------------------------\n")
+	utils.ColorPrint(utils.GREEN, "Lexer:")
+	utils.ColorPrint(utils.GREEN, "\n---------------------------\n")
 
 	tokens := lexer.NewLexer(source).Tokenize()
 
@@ -38,7 +46,11 @@ func main() {
 		fmt.Printf("%v\n", v)
 	}
 
-	fmt.Printf("Parsed Ast: \n")
-	ast := parser.NewParser(tokens).Parse()
-	fmt.Printf("%v", ast)
+	parsedAst := parser.NewParser(tokens).Parse()
+
+	utils.ColorPrint(utils.GREEN, "\n---------------------------\n")
+	utils.ColorPrint(utils.GREEN, "AST:")
+	utils.ColorPrint(utils.GREEN, "\n---------------------------\n")
+	fmt.Printf("Original AST: \n%v\n\n", parsedAst)
+	fmt.Printf("Pretty AST: \n%s\n", utils.PrettyPrint(parsedAst))
 }

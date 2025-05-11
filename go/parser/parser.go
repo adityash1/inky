@@ -3,8 +3,8 @@ package parser
 import (
 	"blue/ast"
 	"blue/token"
+	"blue/utils"
 	"fmt"
-	"os"
 	"strconv"
 )
 
@@ -52,7 +52,7 @@ func (p *Parser) factor() ast.Expr {
 	return p.unary()
 }
 
-// ‹unary> ::= ('*'|'-'|'~') ‹unary› | <primary>
+// ‹unary> ::= ('+'|'-'|'~') ‹unary› | <primary>
 func (p *Parser) unary() ast.Expr {
 	if p.match(token.TOK_NOT) || p.match(token.TOK_MINUS) || p.match(token.TOK_PLUS) {
 		op := p.previousToken()
@@ -75,7 +75,7 @@ func (p *Parser) primary() ast.Expr {
 	if p.match(token.TOK_LPAREN) {
 		expr := p.expr()
 		if !p.match(token.TOK_RPAREN) {
-			die("Error: ')' expected.")
+			utils.ParseError("Error: ')' expected.", p.previousToken().Line)
 		}
 		return &ast.Grouping{Value: expr}
 	}
@@ -100,11 +100,11 @@ func (p *Parser) previousToken() token.Token {
 
 func (p *Parser) expect(expectedType token.TokenType) token.Token {
 	if p.curr >= len(p.tokens) {
-		die(fmt.Sprintf("Found %v at the end of parsing", p.previousToken().Lexeme))
+		utils.ParseError(fmt.Sprintf("Found %v at the end of parsing", p.previousToken().Lexeme), p.previousToken().Line)
 	} else if p.tokens[p.curr].Type == expectedType {
 		return p.advance()
 	} else {
-		die(fmt.Sprintf("Expected %v, found %v.", expectedType, p.peek().Lexeme))
+		utils.ParseError(fmt.Sprintf("Expected %v, found %v.", expectedType, p.peek().Lexeme), p.peek().Line)
 	}
 	return token.Token{} // unreachable, but required
 }
@@ -124,9 +124,4 @@ func (p *Parser) advance() token.Token {
 	tok := p.tokens[p.curr]
 	p.curr++
 	return tok
-}
-
-func die(msg string) {
-	fmt.Fprintln(os.Stderr, msg)
-	os.Exit(1)
 }

@@ -41,7 +41,7 @@ type BinOp struct {
 }
 
 func (b BinOp) String() string {
-	return fmt.Sprintf("BinOp[%q, %s, %s]", b.Op.Lexeme, b.Left.String(), b.Right.String())
+	return fmt.Sprintf("BinOp(%q, %s, %s)", b.Op.Lexeme, b.Left.String(), b.Right.String())
 }
 
 // UnOp represents a unary operation like -x.
@@ -51,7 +51,7 @@ type UnOp struct {
 }
 
 func (u UnOp) String() string {
-	return fmt.Sprintf("UnOp[%q, %s]", u.Op.Lexeme, u.Operand.String())
+	return fmt.Sprintf("UnOp(%q, %s)", u.Op.Lexeme, u.Operand.String())
 }
 
 // Grouping represents a grouped expression like (x + y).
@@ -60,5 +60,5 @@ type Grouping struct {
 }
 
 func (g Grouping) String() string {
-	return fmt.Sprintf("Grouping[%s]", g.Value.String())
+	return fmt.Sprintf("Grouping(%s)", g.Value.String())
 }
