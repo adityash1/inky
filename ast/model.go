@@ -5,19 +5,25 @@ import (
 	"fmt"
 )
 
+// Node is the parent interface for all AST nodes
+type Node interface {
+	String() string
+}
+
 // Expr is the interface for expressions
 type Expr interface {
-	String() string
+	Node
 }
 
 // Stat is the interface for statements.
 type Stat interface {
-	String() string
+	Node
 }
 
 // Integer represents an integer expression.
 type Integer struct {
 	Value int
+	Line  int
 }
 
 func (i Integer) String() string {
@@ -27,6 +33,7 @@ func (i Integer) String() string {
 // Float represents a float expression.
 type Float struct {
 	Value float64
+	Line  int
 }
 
 func (f Float) String() string {
@@ -38,6 +45,7 @@ type BinOp struct {
 	Op    token.Token
 	Left  Expr
 	Right Expr
+	Line  int
 }
 
 func (b BinOp) String() string {
@@ -48,6 +56,7 @@ func (b BinOp) String() string {
 type UnOp struct {
 	Op      token.Token
 	Operand Expr
+	Line    int
 }
 
 func (u UnOp) String() string {
@@ -57,6 +66,7 @@ func (u UnOp) String() string {
 // Grouping represents a grouped expression like (x + y).
 type Grouping struct {
 	Value Expr
+	Line  int
 }
 
 func (g Grouping) String() string {
