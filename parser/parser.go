@@ -25,31 +25,30 @@ func (p *Parser) Parse() ast.Expr {
 	return ast
 }
 
-// ‹expr> ::= ‹term> ( ('+'|'-') ‹term› )*
 func (p *Parser) expr() ast.Expr {
-	expr := p.term()
+	return p.addition()
+}
+
+// <addition> ::= <multiplication> ( ('+'|'-') <multiplication> )*
+func (p *Parser) addition() ast.Expr {
+	expr := p.multiplication()
 	for p.match(token.TOK_PLUS) || p.match(token.TOK_MINUS) {
 		op := p.previousToken()
-		right := p.term()
-		expr = &ast.BinOp{Op: op, Left: expr, Right: right}
+		right := p.multiplication()
+		expr = &ast.BinOp{Op: op, Left: expr, Right: right, Line: op.Line}
 	}
 	return expr
 }
 
-// <term> ::= ‹factor> ( ('*'|'/') ‹factor> )*
-func (p *Parser) term() ast.Expr {
-	expr := p.factor()
+// <multiplication> ::= <unary> ( ('*'|'/') <unary> )*
+func (p *Parser) multiplication() ast.Expr {
+	expr := p.unary()
 	for p.match(token.TOK_STAR) || p.match(token.TOK_SLASH) {
 		op := p.previousToken()
-		right := p.factor()
-		expr = &ast.BinOp{Op: op, Left: expr, Right: right}
+		right := p.unary()
+		expr = &ast.BinOp{Op: op, Left: expr, Right: right, Line: op.Line}
 	}
 	return expr
-}
-
-// <factor> ::= <unary>
-func (p *Parser) factor() ast.Expr {
-	return p.unary()
 }
 
 // ‹unary> ::= ('+'|'-'|'~') ‹unary› | <primary>
@@ -57,7 +56,7 @@ func (p *Parser) unary() ast.Expr {
 	if p.match(token.TOK_NOT) || p.match(token.TOK_MINUS) || p.match(token.TOK_PLUS) {
 		op := p.previousToken()
 		operand := p.unary()
-		return &ast.UnOp{Op: op, Operand: operand}
+		return &ast.UnOp{Op: op, Operand: operand, Line: op.Line}
 	}
 	return p.primary()
 }
@@ -66,18 +65,18 @@ func (p *Parser) unary() ast.Expr {
 func (p *Parser) primary() ast.Expr {
 	if p.match(token.TOK_INTEGER) {
 		val, _ := strconv.Atoi(p.previousToken().Lexeme)
-		return &ast.Integer{Value: val}
+		return &ast.Integer{Value: val, Line: p.previousToken().Line}
 	}
 	if p.match(token.TOK_FLOAT) {
 		val, _ := strconv.ParseFloat(p.previousToken().Lexeme, 64)
-		return &ast.Float{Value: val}
+		return &ast.Float{Value: val, Line: p.previousToken().Line}
 	}
 	if p.match(token.TOK_LPAREN) {
 		expr := p.expr()
 		if !p.match(token.TOK_RPAREN) {
 			utils.ParseError("Error: ')' expected.", p.previousToken().Line)
 		}
-		return &ast.Grouping{Value: expr}
+		return &ast.Grouping{Value: expr, Line: p.previousToken().Line}
 	}
 	return nil
 }
