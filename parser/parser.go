@@ -1,10 +1,10 @@
 package parser
 
 import (
-	"blue/ast"
-	"blue/token"
-	"blue/utils"
 	"fmt"
+	"inky/ast"
+	"inky/token"
+	"inky/utils"
 	"strconv"
 )
 

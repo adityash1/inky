@@ -1,8 +1,8 @@
 package ast
 
 import (
-	"blue/token"
 	"fmt"
+	"inky/token"
 )
 
 // Node is the parent interface for all AST nodes

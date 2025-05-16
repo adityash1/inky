@@ -1,9 +1,9 @@
 package lexer
 
 import (
-	"blue/token"
-	"blue/utils"
 	"fmt"
+	"inky/token"
+	"inky/utils"
 	"unicode"
 )
 

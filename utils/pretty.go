@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"blue/ast"
 	"fmt"
+	"inky/ast"
 	"os"
 	"strings"
 )

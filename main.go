@@ -1,10 +1,10 @@
 package main
 
 import (
-	"blue/lexer"
-	"blue/parser"
-	"blue/utils"
 	"fmt"
+	"inky/lexer"
+	"inky/parser"
+	"inky/utils"
 	"io"
 	"os"
 )
