@@ -16,9 +16,9 @@ type Expr interface {
 }
 
 // Stat is the interface for statements.
-type Stat interface {
-	Node
-}
+// type Stat interface {
+// 	Node
+// }
 
 // Integer represents an integer expression.
 type Integer struct {

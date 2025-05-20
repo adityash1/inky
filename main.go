@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"inky/interpreter"
 	"inky/lexer"
 	"inky/parser"
 	"inky/utils"
@@ -46,11 +47,22 @@ func main() {
 		fmt.Printf("%v\n", v)
 	}
 
-	parsedAst := parser.NewParser(tokens).Parse()
+	ast := parser.NewParser(tokens).Parse()
 
 	utils.ColorPrint(utils.GREEN, "\n---------------------------\n")
 	utils.ColorPrint(utils.GREEN, "AST:")
 	utils.ColorPrint(utils.GREEN, "\n---------------------------\n")
-	fmt.Printf("Original AST: \n%v\n\n", parsedAst)
-	fmt.Printf("Pretty AST: \n%s\n", utils.PrettyPrint(parsedAst))
+	fmt.Printf("Original AST: \n%v\n\n", ast)
+	fmt.Printf("Pretty AST: \n%s\n", utils.PrettyPrint(ast))
+
+	interpreter := interpreter.NewInterpreter()
+	result, err := interpreter.Interpret(ast)
+	if err != nil {
+		die("Interpreter Error: " + err.Error())
+	}
+
+	utils.ColorPrint(utils.GREEN, "\n---------------------------\n")
+	utils.ColorPrint(utils.GREEN, "Interpreter:")
+	utils.ColorPrint(utils.GREEN, "\n---------------------------\n")
+	fmt.Printf("%v\n\n", result)
 }
