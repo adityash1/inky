@@ -40,6 +40,26 @@ func (f Float) String() string {
 	return fmt.Sprintf("Float[%f]", f.Value)
 }
 
+// Bool represents a boolean expression.
+type Bool struct {
+	Value bool
+	Line  int
+}
+
+func (b Bool) String() string {
+	return fmt.Sprintf("Bool[%t]", b.Value)
+}
+
+// String represents a string expression.
+type String struct {
+	Value string
+	Line  int
+}
+
+func (s String) String() string {
+	return fmt.Sprintf("String[%s]", s.Value)
+}
+
 // BinOp represents a binary operation like x + y.
 type BinOp struct {
 	Op    token.Token

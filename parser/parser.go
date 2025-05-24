@@ -61,7 +61,7 @@ func (p *Parser) unary() ast.Expr {
 	return p.primary()
 }
 
-// ‹primary> ::= <integer> | ‹float> | '(' ‹expr> ')'
+// ‹primary> ::= <integer> | ‹float> | '(' ‹expr> ')' | <bool> | <string>
 func (p *Parser) primary() ast.Expr {
 	if p.match(token.TOK_INTEGER) {
 		val, _ := strconv.Atoi(p.previousToken().Lexeme)
@@ -70,6 +70,15 @@ func (p *Parser) primary() ast.Expr {
 	if p.match(token.TOK_FLOAT) {
 		val, _ := strconv.ParseFloat(p.previousToken().Lexeme, 64)
 		return &ast.Float{Value: val, Line: p.previousToken().Line}
+	}
+	if p.match(token.TOK_TRUE) {
+		return &ast.Bool{Value: true, Line: p.previousToken().Line}
+	}
+	if p.match(token.TOK_FALSE) {
+		return &ast.Bool{Value: false, Line: p.previousToken().Line}
+	}
+	if p.match(token.TOK_STRING) {
+		return &ast.String{Value: p.previousToken().Lexeme[1 : len(p.previousToken().Lexeme)-1], Line: p.previousToken().Line} // Remove the quotes from the string
 	}
 	if p.match(token.TOK_LPAREN) {
 		expr := p.expr()

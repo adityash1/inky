@@ -1,0 +1,86 @@
+package utils
+
+import (
+	"fmt"
+	"inky/ast"
+	"os"
+	"strings"
+)
+
+func PrettyPrint(expr ast.Expr) string {
+	lines := []string{}
+	buildTreeLines(expr, "", "", &lines)
+	return strings.Join(lines, "\n")
+}
+
+func buildTreeLines(expr ast.Expr, prefix string, childrenPrefix string, lines *[]string) {
+	var nodeDesc string
+	var children []ast.Expr
+
+	switch node := expr.(type) {
+	case *ast.Integer:
+		nodeDesc = fmt.Sprintf("● Integer: %d", node.Value)
+	case *ast.Float:
+		nodeDesc = fmt.Sprintf("● Float: %f", node.Value)
+	case *ast.BinOp:
+		nodeDesc = fmt.Sprintf("● BinOp: %q", node.Op.Lexeme)
+		children = []ast.Expr{node.Left, node.Right}
+	case *ast.UnOp:
+		nodeDesc = fmt.Sprintf("● UnOp: %q", node.Op.Lexeme)
+		children = []ast.Expr{node.Operand}
+	case *ast.Grouping:
+		nodeDesc = "● Grouping"
+		children = []ast.Expr{node.Value}
+	case *ast.String:
+		nodeDesc = fmt.Sprintf("● String: %s", node.Value)
+	case *ast.Bool:
+		nodeDesc = fmt.Sprintf("● Bool: %t", node.Value)
+	default:
+		nodeDesc = "● Unknown"
+	}
+
+	// Add the current node to the output lines
+	*lines = append(*lines, prefix+nodeDesc)
+
+	// Add all children except the last one
+	for i := 0; i < len(children)-1; i++ {
+		// For each child except the last, use "├── " as the connector
+		// and add "│   " to the prefix for its children
+		buildTreeLines(children[i], childrenPrefix+"├── ", childrenPrefix+"│   ", lines)
+	}
+
+	// Add the last child
+	if len(children) > 0 {
+		// For the last child, use "└── " as the connector
+		// and add "    " to the prefix for its children
+		buildTreeLines(children[len(children)-1], childrenPrefix+"└── ", childrenPrefix+"    ", lines)
+	}
+}
+
+const (
+	WHITE  = "\033[0m"
+	BLUE   = "\033[94m"
+	CYAN   = "\033[96m"
+	GREEN  = "\033[92m"
+	YELLOW = "\033[93m"
+	RED    = "\033[91m"
+)
+
+func ColorPrint(color, msg string) {
+	fmt.Printf("%s%s%s", color, msg, WHITE)
+}
+
+func ParseError(msg string, lineno int) {
+	fmt.Printf("%v [Line %d]: %s %s", RED, lineno, msg, WHITE)
+	os.Exit(1)
+}
+
+func LexingError(msg string, lineno int) {
+	fmt.Printf("%v [Line %d]: %s %s", RED, lineno, msg, WHITE)
+	os.Exit(1)
+}
+
+func RuntimeError(msg string, lineno int) {
+	fmt.Printf("%v [Line %d]: %s %s", RED, lineno, msg, WHITE)
+	os.Exit(1)
+}
