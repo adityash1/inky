@@ -27,6 +27,8 @@ func (i *Interpreter) Interpret(expr ast.Expr) (string, interface{}, error) {
 		return i.visitBinOp(node)
 	case *ast.UnOp:
 		return i.visitUnOp(node)
+	case *ast.LogicalOp:
+		return i.visitLogical(node)
 	case *ast.Grouping:
 		return i.Interpret(node.Value)
 	case *ast.Integer:
@@ -242,4 +244,27 @@ func (i *Interpreter) visitUnOp(node *ast.UnOp) (string, interface{}, error) {
 	default:
 		return "", 0, fmt.Errorf("unsupported unary operator %v", node.Op.Type)
 	}
+}
+
+func (i *Interpreter) visitLogical(node *ast.LogicalOp) (string, interface{}, error) {
+	leftType, leftVal, err := i.Interpret(node.Left)
+	if err != nil {
+		return "", 0, err
+	}
+
+	// short circuit evaluation
+	if node.Op.Type == token.TOK_AND {
+		if leftType == TYPE_BOOL && leftVal.(bool) {
+			return i.Interpret(node.Right)
+		} else {
+			return TYPE_BOOL, false, nil
+		}
+	} else if node.Op.Type == token.TOK_OR {
+		if leftType == TYPE_BOOL && leftVal.(bool) {
+			return TYPE_BOOL, true, nil
+		} else {
+			return i.Interpret(node.Right)
+		}
+	}
+	return "", 0, nil
 }

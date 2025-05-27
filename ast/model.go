@@ -92,3 +92,15 @@ type Grouping struct {
 func (g Grouping) String() string {
 	return fmt.Sprintf("Grouping(%s)", g.Value.String())
 }
+
+// LogicalOp represents a logical operation like x and y.
+type LogicalOp struct {
+	Op    token.Token
+	Left  Expr
+	Right Expr
+	Line  int
+}
+
+func (l LogicalOp) String() string {
+	return fmt.Sprintf("Logical(%q, %s, %s)", l.Op.Lexeme, l.Left.String(), l.Right.String())
+}

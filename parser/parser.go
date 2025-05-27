@@ -26,7 +26,29 @@ func (p *Parser) Parse() ast.Expr {
 }
 
 func (p *Parser) expr() ast.Expr {
-	return p.equality()
+	return p.or_logical()
+}
+
+// or_logical ::= and_logical ( 'or' and_logical )*
+func (p *Parser) or_logical() ast.Expr {
+	expr := p.and_logical()
+	for p.match(token.TOK_OR) {
+		op := p.previousToken()
+		right := p.and_logical()
+		expr = &ast.LogicalOp{Op: op, Left: expr, Right: right, Line: op.Line}
+	}
+	return expr
+}
+
+// and_logical ::= equality ( 'and' equality )*
+func (p *Parser) and_logical() ast.Expr {
+	expr := p.equality()
+	for p.match(token.TOK_AND) {
+		op := p.previousToken()
+		right := p.equality()
+		expr = &ast.LogicalOp{Op: op, Left: expr, Right: right, Line: op.Line}
+	}
+	return expr
 }
 
 // equality ::= comparison ( ( '~=' | '==' ) comparison )*
