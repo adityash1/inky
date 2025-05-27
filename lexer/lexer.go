@@ -30,7 +30,7 @@ func (l *Lexer) Tokenize() []token.Token {
 		l.start = l.curr
 		ch := l.advance()
 		if ch == '\n' {
-			l.line = l.line + 1
+			l.line += 1
 		} else if ch == ' ' || ch == '\t' || ch == '\r' {
 			continue
 		} else if ch == '#' {
@@ -72,7 +72,6 @@ func (l *Lexer) Tokenize() []token.Token {
 		} else if ch == '%' {
 			l.add_token(token.TOK_MOD)
 		} else if ch == ':' {
-			l.match('=')
 			if l.match('=') {
 				l.add_token(token.TOK_ASSIGN)
 			} else {
@@ -101,6 +100,8 @@ func (l *Lexer) Tokenize() []token.Token {
 		} else if ch == '=' {
 			if l.match('=') {
 				l.add_token(token.TOK_EQEQ)
+			} else {
+				l.add_token(token.TOK_EQ)
 			}
 		} else if ch == '~' {
 			if l.match('=') {
