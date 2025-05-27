@@ -26,12 +26,13 @@ const (
 	TOK_NOT       TokenType = "TOK_NOT"       // ~
 	TOK_GT        TokenType = "TOK_GT"        // >
 	TOK_LT        TokenType = "TOK_LT"        // <
+	TOK_EQ        TokenType = "TOK_EQ"        // ==
 
 	// Two-character tokens
 	TOK_GE     TokenType = "TOK_GE"     // >=
 	TOK_LE     TokenType = "TOK_LE"     // <=
 	TOK_NE     TokenType = "TOK_NE"     // ~=
-	TOK_EQ     TokenType = "TOK_EQ"     // ==
+	TOK_EQEQ   TokenType = "TOK_EQEQ"   // ==
 	TOK_ASSIGN TokenType = "TOK_ASSIGN" // :=
 	TOK_GTGT   TokenType = "TOK_GTGT"   // >>
 	TOK_LTLT   TokenType = "TOK_LTLT"   // <<

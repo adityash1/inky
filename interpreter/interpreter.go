@@ -112,6 +112,92 @@ func (i *Interpreter) visitBinOp(node *ast.BinOp) (string, interface{}, error) {
 			utils.RuntimeError(fmt.Sprintf("unsupported operator %v between %v and %v", node.Op.Type, leftType, rightType), node.Op.Line)
 		}
 
+	case token.TOK_GT:
+		if leftType == TYPE_NUMBER && rightType == TYPE_NUMBER {
+			leftNum := leftVal.(float64)
+			rightNum := rightVal.(float64)
+			return TYPE_BOOL, leftNum > rightNum, nil
+		} else if leftType == TYPE_STRING && rightType == TYPE_STRING {
+			leftStr := leftVal.(string)
+			rightStr := rightVal.(string)
+			return TYPE_BOOL, leftStr > rightStr, nil
+		} else {
+			utils.RuntimeError(fmt.Sprintf("unsupported operator %v between %v and %v", node.Op.Type, leftType, rightType), node.Op.Line)
+		}
+
+	case token.TOK_LT:
+		if leftType == TYPE_NUMBER && rightType == TYPE_NUMBER {
+			leftNum := leftVal.(float64)
+			rightNum := rightVal.(float64)
+			return TYPE_BOOL, leftNum < rightNum, nil
+		} else if leftType == TYPE_STRING && rightType == TYPE_STRING {
+			leftStr := leftVal.(string)
+			rightStr := rightVal.(string)
+			return TYPE_BOOL, leftStr < rightStr, nil
+		} else {
+			utils.RuntimeError(fmt.Sprintf("unsupported operator %v between %v and %v", node.Op.Type, leftType, rightType), node.Op.Line)
+		}
+
+	case token.TOK_GE:
+		if leftType == TYPE_NUMBER && rightType == TYPE_NUMBER {
+			leftNum := leftVal.(float64)
+			rightNum := rightVal.(float64)
+			return TYPE_BOOL, leftNum >= rightNum, nil
+		} else if leftType == TYPE_STRING && rightType == TYPE_STRING {
+			leftStr := leftVal.(string)
+			rightStr := rightVal.(string)
+			return TYPE_BOOL, leftStr >= rightStr, nil
+		} else {
+			utils.RuntimeError(fmt.Sprintf("unsupported operator %v between %v and %v", node.Op.Type, leftType, rightType), node.Op.Line)
+		}
+
+	case token.TOK_LE:
+		if leftType == TYPE_NUMBER && rightType == TYPE_NUMBER {
+			leftNum := leftVal.(float64)
+			rightNum := rightVal.(float64)
+			return TYPE_BOOL, leftNum <= rightNum, nil
+		} else if leftType == TYPE_STRING && rightType == TYPE_STRING {
+			leftStr := leftVal.(string)
+			rightStr := rightVal.(string)
+			return TYPE_BOOL, leftStr <= rightStr, nil
+		} else {
+			utils.RuntimeError(fmt.Sprintf("unsupported operator %v between %v and %v", node.Op.Type, leftType, rightType), node.Op.Line)
+		}
+
+	case token.TOK_EQEQ:
+		if leftType == TYPE_NUMBER && rightType == TYPE_NUMBER {
+			leftNum := leftVal.(float64)
+			rightNum := rightVal.(float64)
+			return TYPE_BOOL, leftNum == rightNum, nil
+		} else if leftType == TYPE_STRING && rightType == TYPE_STRING {
+			leftStr := leftVal.(string)
+			rightStr := rightVal.(string)
+			return TYPE_BOOL, leftStr == rightStr, nil
+		} else if leftType == TYPE_BOOL && rightType == TYPE_BOOL {
+			leftBool := leftVal.(bool)
+			rightBool := rightVal.(bool)
+			return TYPE_BOOL, leftBool == rightBool, nil
+		} else {
+			utils.RuntimeError(fmt.Sprintf("unsupported operator %v between %v and %v", node.Op.Type, leftType, rightType), node.Op.Line)
+		}
+
+	case token.TOK_NE:
+		if leftType == TYPE_NUMBER && rightType == TYPE_NUMBER {
+			leftNum := leftVal.(float64)
+			rightNum := rightVal.(float64)
+			return TYPE_BOOL, leftNum != rightNum, nil
+		} else if leftType == TYPE_STRING && rightType == TYPE_STRING {
+			leftStr := leftVal.(string)
+			rightStr := rightVal.(string)
+			return TYPE_BOOL, leftStr != rightStr, nil
+		} else if leftType == TYPE_BOOL && rightType == TYPE_BOOL {
+			leftBool := leftVal.(bool)
+			rightBool := rightVal.(bool)
+			return TYPE_BOOL, leftBool != rightBool, nil
+		} else {
+			utils.RuntimeError(fmt.Sprintf("unsupported operator %v between %v and %v", node.Op.Type, leftType, rightType), node.Op.Line)
+		}
+
 	default:
 		return "", 0, fmt.Errorf("unsupported binary operator %v", node.Op.Type)
 	}
@@ -136,7 +222,8 @@ func (i *Interpreter) visitUnOp(node *ast.UnOp) (string, interface{}, error) {
 
 	case token.TOK_PLUS:
 		if operandType == TYPE_NUMBER {
-			return operandType, operand, nil
+			operandNum := operand.(float64)
+			return TYPE_NUMBER, operandNum, nil
 		} else {
 			return "", 0, fmt.Errorf("unsupported unary operator %v on type %v", node.Op.Type, operandType)
 		}
@@ -145,6 +232,9 @@ func (i *Interpreter) visitUnOp(node *ast.UnOp) (string, interface{}, error) {
 		if operandType == TYPE_BOOL {
 			operandBool := operand.(bool)
 			return operandType, !operandBool, nil
+		} else if operandType == TYPE_NUMBER {
+			operandNum := operand.(float64)
+			return TYPE_NUMBER, -operandNum, nil
 		} else {
 			return "", 0, fmt.Errorf("unsupported unary operator %v on type %v", node.Op.Type, operandType)
 		}

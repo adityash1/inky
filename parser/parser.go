@@ -26,10 +26,32 @@ func (p *Parser) Parse() ast.Expr {
 }
 
 func (p *Parser) expr() ast.Expr {
-	return p.addition()
+	return p.equality()
 }
 
-// <addition> ::= <multiplication> ( ('+'|'-') <multiplication> )*
+// equality ::= comparison ( ( '~=' | '==' ) comparison )*
+func (p *Parser) equality() ast.Expr {
+	expr := p.comparison()
+	for p.match(token.TOK_EQEQ) || p.match(token.TOK_NE) {
+		op := p.previousToken()
+		right := p.comparison()
+		expr = &ast.BinOp{Op: op, Left: expr, Right: right, Line: op.Line}
+	}
+	return expr
+}
+
+// comparison ::= addition ( ( '>' | '>=' | '<' | '<=' ) addition )*
+func (p *Parser) comparison() ast.Expr {
+	expr := p.addition()
+	for p.match(token.TOK_GT) || p.match(token.TOK_GE) || p.match(token.TOK_LT) || p.match(token.TOK_LE) {
+		op := p.previousToken()
+		right := p.addition()
+		expr = &ast.BinOp{Op: op, Left: expr, Right: right, Line: op.Line}
+	}
+	return expr
+}
+
+// addition ::= multiplication ( ( '+' | '-' ) multiplication )*
 func (p *Parser) addition() ast.Expr {
 	expr := p.multiplication()
 	for p.match(token.TOK_PLUS) || p.match(token.TOK_MINUS) {
@@ -40,10 +62,21 @@ func (p *Parser) addition() ast.Expr {
 	return expr
 }
 
-// <multiplication> ::= <unary> ( ('*'|'/') <unary> )*
+// multiplication ::= modulo ( ( '*' | '/' ) modulo )*
 func (p *Parser) multiplication() ast.Expr {
-	expr := p.unary()
+	expr := p.modulo()
 	for p.match(token.TOK_STAR) || p.match(token.TOK_SLASH) {
+		op := p.previousToken()
+		right := p.modulo()
+		expr = &ast.BinOp{Op: op, Left: expr, Right: right, Line: op.Line}
+	}
+	return expr
+}
+
+// modulo ::= unary ( '%' unary )*
+func (p *Parser) modulo() ast.Expr {
+	expr := p.unary()
+	for p.match(token.TOK_MOD) {
 		op := p.previousToken()
 		right := p.unary()
 		expr = &ast.BinOp{Op: op, Left: expr, Right: right, Line: op.Line}
@@ -51,14 +84,25 @@ func (p *Parser) multiplication() ast.Expr {
 	return expr
 }
 
-// ‹unary> ::= ('+'|'-'|'~') ‹unary› | <primary>
+// unary ::= ( '~' | '-' | '+' )* exponent
 func (p *Parser) unary() ast.Expr {
 	if p.match(token.TOK_NOT) || p.match(token.TOK_MINUS) || p.match(token.TOK_PLUS) {
 		op := p.previousToken()
 		operand := p.unary()
 		return &ast.UnOp{Op: op, Operand: operand, Line: op.Line}
 	}
-	return p.primary()
+	return p.exponent()
+}
+
+// exponent ::= primary ( '^' exponent )*
+func (p *Parser) exponent() ast.Expr {
+	expr := p.primary()
+	if p.match(token.TOK_CARET) {
+		op := p.previousToken()
+		right := p.exponent() // Recursively parse the right side for right-associativity
+		return &ast.BinOp{Op: op, Left: expr, Right: right, Line: op.Line}
+	}
+	return expr
 }
 
 // ‹primary> ::= <integer> | ‹float> | '(' ‹expr> ')' | <bool> | <string>

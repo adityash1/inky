@@ -100,7 +100,7 @@ func (l *Lexer) Tokenize() []token.Token {
 			}
 		} else if ch == '=' {
 			if l.match('=') {
-				l.add_token(token.TOK_EQ)
+				l.add_token(token.TOK_EQEQ)
 			}
 		} else if ch == '~' {
 			if l.match('=') {
