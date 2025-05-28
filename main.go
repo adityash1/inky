@@ -5,6 +5,7 @@ import (
 	"inky/interpreter"
 	"inky/lexer"
 	"inky/parser"
+	"inky/repl"
 	"inky/utils"
 	"io"
 	"os"
@@ -16,9 +17,21 @@ func die(msg string) {
 }
 
 func main() {
-	if len(os.Args) != 3 {
-		die("Usage: go run main.go -- <filename>")
+	// No arguments, launch REPL
+	if len(os.Args) == 1 {
+		repl := repl.NewREPL()
+		repl.Run()
+		return
 	}
+
+	// Check for correct arguments for file mode
+	if len(os.Args) != 3 || os.Args[1] != "--" {
+		fmt.Println("Usage:")
+		fmt.Println("  inky                # Start REPL mode")
+		fmt.Println("  inky -- <filename>  # Execute file")
+		os.Exit(1)
+	}
+
 	filename := os.Args[2]
 
 	file, err := os.Open(filename)

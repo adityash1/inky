@@ -35,6 +35,9 @@ func buildTreeLines(expr ast.Expr, prefix string, childrenPrefix string, lines *
 		nodeDesc = fmt.Sprintf("● String: %s", node.Value)
 	case *ast.Bool:
 		nodeDesc = fmt.Sprintf("● Bool: %t", node.Value)
+	case *ast.LogicalOp:
+		nodeDesc = fmt.Sprintf("● LogicalOp: %q", node.Op.Lexeme)
+		children = []ast.Expr{node.Left, node.Right}
 	default:
 		nodeDesc = "● Unknown"
 	}

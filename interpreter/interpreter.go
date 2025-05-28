@@ -88,6 +88,9 @@ func (i *Interpreter) visitBinOp(node *ast.BinOp) (string, interface{}, error) {
 		}
 
 	case token.TOK_SLASH:
+		if rightType == TYPE_NUMBER && rightVal.(float64) == 0 {
+			utils.RuntimeError("division by zero", node.Op.Line)
+		}
 		if leftType == TYPE_NUMBER && rightType == TYPE_NUMBER {
 			leftNum := leftVal.(float64)
 			rightNum := rightVal.(float64)

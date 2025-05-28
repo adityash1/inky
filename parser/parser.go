@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"inky/ast"
 	"inky/token"
 	"inky/utils"
@@ -172,30 +171,30 @@ func (p *Parser) previousToken() token.Token {
 	return p.tokens[p.curr-1]
 }
 
-func (p *Parser) expect(expectedType token.TokenType) token.Token {
-	if p.curr >= len(p.tokens) {
-		utils.ParseError(fmt.Sprintf("Found %v at the end of parsing", p.previousToken().Lexeme), p.previousToken().Line)
-	} else if p.tokens[p.curr].Type == expectedType {
-		return p.advance()
-	} else {
-		utils.ParseError(fmt.Sprintf("Expected %v, found %v.", expectedType, p.peek().Lexeme), p.peek().Line)
-	}
-	return token.Token{} // unreachable, but required
-}
-
-func (p *Parser) isNext(expectedType token.TokenType) bool {
-	if p.curr >= len(p.tokens) {
-		return false
-	}
-	return p.peek().Type == expectedType
-}
-
 func (p *Parser) peek() token.Token {
 	return p.tokens[p.curr]
 }
 
-func (p *Parser) advance() token.Token {
-	tok := p.tokens[p.curr]
-	p.curr++
-	return tok
-}
+// func (p *Parser) expect(expectedType token.TokenType) token.Token {
+// 	if p.curr >= len(p.tokens) {
+// 		utils.ParseError(fmt.Sprintf("Found %v at the end of parsing", p.previousToken().Lexeme), p.previousToken().Line)
+// 	} else if p.tokens[p.curr].Type == expectedType {
+// 		return p.advance()
+// 	} else {
+// 		utils.ParseError(fmt.Sprintf("Expected %v, found %v.", expectedType, p.peek().Lexeme), p.peek().Line)
+// 	}
+// 	return token.Token{} // unreachable, but required
+// }
+
+// func (p *Parser) isNext(expectedType token.TokenType) bool {
+// 	if p.curr >= len(p.tokens) {
+// 		return false
+// 	}
+// 	return p.peek().Type == expectedType
+// }
+
+// func (p *Parser) advance() token.Token {
+// 	tok := p.tokens[p.curr]
+// 	p.curr++
+// 	return tok
+// }
