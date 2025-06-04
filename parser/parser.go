@@ -20,10 +20,59 @@ func NewParser(tokens []token.Token) *Parser {
 }
 
 func (p *Parser) Parse() ast.Expr {
-	ast := p.expr()
+	ast := p.program()
 	return ast
 }
 
+// program  ::= stmts
+func (p *Parser) program() ast.Expr {
+	ast := p.stmts()
+	return ast
+}
+
+// stmts ::= stmt+
+func (p *Parser) stmts() *ast.Stmts {
+	stmts := []ast.Stat{}
+	//TODO
+	for p.curr < len(p.tokens) {
+		stmt := p.stmt()
+		stmts = append(stmts, stmt)
+	}
+	return &ast.Stmts{Stmts: stmts, Line: p.previousToken().Line}
+}
+
+// stmt ::= expr_stmt | print_stmt | assign | local_assign | println_stmt |
+// if_stmt | while_stmt | for_stmt | func_decl | func_call | ret_stmt
+func (p *Parser) stmt() ast.Stat {
+	// TODO: predictive parsing, where the next token predicts what is the next statement
+	// TODO: parse print, if, while, for, assignment, function call, etc.
+	if p.peek().Type == token.TOK_PRINT {
+		return p.print_stmt()
+	}
+	// else if p.peek().Type == token.TOK_IF {
+	// 	return p.if_stmt()
+	// } else if p.peek().Type == token.TOK_WHILE {
+	// 	return p.while_stmt()
+	// } else if p.peek().Type == token.TOK_FOR {
+	// 	return p.for_stmt()
+	// } else if p.peek().Type == token.TOK_FUNC {
+	// 	return p.func_decl()
+	// } else {
+	// 	// TODO
+	// }
+	return nil
+}
+
+// print_stmt ::= 'print' expr
+func (p *Parser) print_stmt() ast.Stat {
+	if p.match(token.TOK_PRINT) {
+		expr := p.expr()
+		return &ast.PrintStmt{Expr: expr, Line: p.previousToken().Line}
+	}
+	return nil
+}
+
+// expr ::= or_logical
 func (p *Parser) expr() ast.Expr {
 	return p.or_logical()
 }

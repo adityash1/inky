@@ -7,39 +7,48 @@ import (
 	"strings"
 )
 
-func PrettyPrint(expr ast.Expr) string {
+func PrettyPrint(node ast.Node) string {
 	lines := []string{}
-	buildTreeLines(expr, "", "", &lines)
+	buildTreeLines(node, "", "", &lines)
 	return strings.Join(lines, "\n")
 }
 
-func buildTreeLines(expr ast.Expr, prefix string, childrenPrefix string, lines *[]string) {
+func buildTreeLines(node ast.Node, prefix string, childrenPrefix string, lines *[]string) {
 	var nodeDesc string
-	var children []ast.Expr
+	var children []ast.Node
 
-	switch node := expr.(type) {
+	switch n := node.(type) {
 	case *ast.Integer:
-		nodeDesc = fmt.Sprintf("● Integer: %d", node.Value)
+		nodeDesc = fmt.Sprintf("● Integer: %d", n.Value)
 	case *ast.Float:
-		nodeDesc = fmt.Sprintf("● Float: %f", node.Value)
+		nodeDesc = fmt.Sprintf("● Float: %f", n.Value)
 	case *ast.BinOp:
-		nodeDesc = fmt.Sprintf("● BinOp: %q", node.Op.Lexeme)
-		children = []ast.Expr{node.Left, node.Right}
+		nodeDesc = fmt.Sprintf("● BinOp: %q", n.Op.Lexeme)
+		children = []ast.Node{n.Left, n.Right}
 	case *ast.UnOp:
-		nodeDesc = fmt.Sprintf("● UnOp: %q", node.Op.Lexeme)
-		children = []ast.Expr{node.Operand}
+		nodeDesc = fmt.Sprintf("● UnOp: %q", n.Op.Lexeme)
+		children = []ast.Node{n.Operand}
 	case *ast.Grouping:
 		nodeDesc = "● Grouping"
-		children = []ast.Expr{node.Value}
+		children = []ast.Node{n.Value}
 	case *ast.String:
-		nodeDesc = fmt.Sprintf("● String: %s", node.Value)
+		nodeDesc = fmt.Sprintf("● String: %s", n.Value)
 	case *ast.Bool:
-		nodeDesc = fmt.Sprintf("● Bool: %t", node.Value)
+		nodeDesc = fmt.Sprintf("● Bool: %t", n.Value)
 	case *ast.LogicalOp:
-		nodeDesc = fmt.Sprintf("● LogicalOp: %q", node.Op.Lexeme)
-		children = []ast.Expr{node.Left, node.Right}
+		nodeDesc = fmt.Sprintf("● LogicalOp: %q", n.Op.Lexeme)
+		children = []ast.Node{n.Left, n.Right}
+	case *ast.PrintStmt:
+		nodeDesc = "● PrintStmt"
+		children = []ast.Node{n.Expr}
+	case *ast.Stmts:
+		nodeDesc = "● Stmts"
+		children = []ast.Node{}
+		for _, stmt := range n.Stmts {
+			children = append(children, stmt)
+		}
 	default:
-		nodeDesc = "● Unknown"
+		nodeDesc = fmt.Sprintf("● Unknown: %T", n)
 	}
 
 	// Add the current node to the output lines
