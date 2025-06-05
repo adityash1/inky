@@ -21,8 +21,8 @@ func NewInterpreter() *Interpreter {
 	return &Interpreter{}
 }
 
-func (i *Interpreter) Interpret(expr ast.Expr) (string, interface{}, error) {
-	switch node := expr.(type) {
+func (i *Interpreter) Interpret(node ast.Node) (string, interface{}, error) {
+	switch node := node.(type) {
 	case *ast.BinOp:
 		return i.visitBinOp(node)
 	case *ast.UnOp:
@@ -39,6 +39,22 @@ func (i *Interpreter) Interpret(expr ast.Expr) (string, interface{}, error) {
 		return TYPE_STRING, string(node.Value), nil
 	case *ast.Bool:
 		return TYPE_BOOL, node.Value, nil
+	case *ast.Stmts:
+		for _, stmt := range node.Stmts {
+			i.Interpret(stmt)
+		}
+		return "", 0, nil
+	case *ast.PrintStmt:
+		_, exprVal, err := i.Interpret(node.Value)
+		if err != nil {
+			return "", 0, err
+		}
+		if node.Newline {
+			fmt.Println(exprVal)
+		} else {
+			fmt.Print(exprVal)
+		}
+		return "", 0, nil
 	default:
 		return "", 0, fmt.Errorf("unknown expression type %T", node)
 	}

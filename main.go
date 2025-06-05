@@ -68,14 +68,15 @@ func main() {
 	fmt.Printf("Original AST: \n%v\n\n", ast)
 	fmt.Printf("Pretty AST: \n%s\n", utils.PrettyPrint(ast))
 
+	utils.ColorPrint(utils.GREEN, "\n---------------------------\n")
+	utils.ColorPrint(utils.GREEN, "Interpreter:")
+	utils.ColorPrint(utils.GREEN, "\n---------------------------\n")
 	interpreter := interpreter.NewInterpreter()
 	typ, result, err := interpreter.Interpret(ast)
 	if err != nil {
 		die("Interpreter Error: " + err.Error())
 	}
-
-	utils.ColorPrint(utils.GREEN, "\n---------------------------\n")
-	utils.ColorPrint(utils.GREEN, "Interpreter:")
-	utils.ColorPrint(utils.GREEN, "\n---------------------------\n")
-	fmt.Printf("%v: %v\n\n", typ, result)
+	if typ != "" {
+		fmt.Printf("%v: %v\n\n", typ, result)
+	}
 }

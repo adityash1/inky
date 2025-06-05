@@ -116,10 +116,11 @@ func (s Stmts) String() string {
 }
 
 type PrintStmt struct {
-	Expr Expr
-	Line int
+	Value   Stat
+	Line    int
+	Newline bool
 }
 
 func (p PrintStmt) String() string {
-	return fmt.Sprintf("PrintStmt(%s)", p.Expr.String())
+	return fmt.Sprintf("PrintStmt(%s, %t)", p.Value.String(), p.Newline)
 }

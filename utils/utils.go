@@ -40,7 +40,7 @@ func buildTreeLines(node ast.Node, prefix string, childrenPrefix string, lines *
 		children = []ast.Node{n.Left, n.Right}
 	case *ast.PrintStmt:
 		nodeDesc = "● PrintStmt"
-		children = []ast.Node{n.Expr}
+		children = []ast.Node{n.Value}
 	case *ast.Stmts:
 		nodeDesc = "● Stmts"
 		children = []ast.Node{}
