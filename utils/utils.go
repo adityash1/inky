@@ -39,7 +39,7 @@ func buildTreeLines(node ast.Node, prefix string, childrenPrefix string, lines *
 		nodeDesc = fmt.Sprintf("● LogicalOp: %q", n.Op.Lexeme)
 		children = []ast.Node{n.Left, n.Right}
 	case *ast.PrintStmt:
-		nodeDesc = "● PrintStmt"
+		nodeDesc = fmt.Sprintf("● PrintStmt: %q", n.End)
 		children = []ast.Node{n.Value}
 	case *ast.Stmts:
 		nodeDesc = "● Stmts"

@@ -72,11 +72,12 @@ func main() {
 	utils.ColorPrint(utils.GREEN, "Interpreter:")
 	utils.ColorPrint(utils.GREEN, "\n---------------------------\n")
 	interpreter := interpreter.NewInterpreter()
-	typ, result, err := interpreter.Interpret(ast)
-	if err != nil {
-		die("Interpreter Error: " + err.Error())
-	}
-	if typ != "" {
-		fmt.Printf("%v: %v\n\n", typ, result)
-	}
+	interpreter.Interpret(ast)
+	// typ, result, err := interpreter.Interpret(ast)
+	// if err != nil {
+	// 	die("Interpreter Error: " + err.Error())
+	// }
+	// if typ != "" {
+	// 	fmt.Printf("%v: %v\n\n", typ, result)
+	// }
 }

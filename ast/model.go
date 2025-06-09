@@ -16,7 +16,7 @@ type Expr interface {
 }
 
 // Stat is the interface for statements.
-type Stat interface {
+type Stmt interface {
 	Node
 }
 
@@ -107,7 +107,7 @@ func (l LogicalOp) String() string {
 
 // Stmts represents a list of statements.
 type Stmts struct {
-	Stmts []Stat
+	Stmts []Stmt
 	Line  int
 }
 
@@ -116,11 +116,11 @@ func (s Stmts) String() string {
 }
 
 type PrintStmt struct {
-	Value   Stat
-	Line    int
-	Newline bool
+	Value Expr
+	End   string
+	Line  int
 }
 
 func (p PrintStmt) String() string {
-	return fmt.Sprintf("PrintStmt(%s, %t)", p.Value.String(), p.Newline)
+	return fmt.Sprintf("PrintStmt(%s, end=%q)", p.Value.String(), p.End)
 }

@@ -49,11 +49,7 @@ func (i *Interpreter) Interpret(node ast.Node) (string, interface{}, error) {
 		if err != nil {
 			return "", 0, err
 		}
-		if node.Newline {
-			fmt.Println(exprVal)
-		} else {
-			fmt.Print(exprVal)
-		}
+		fmt.Print(exprVal, node.End)
 		return "", 0, nil
 	default:
 		return "", 0, fmt.Errorf("unknown expression type %T", node)
