@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"inky/ast"
 	"inky/token"
 	"inky/utils"
@@ -19,22 +20,21 @@ func NewParser(tokens []token.Token) *Parser {
 	}
 }
 
-func (p *Parser) Parse() ast.Node {
-	ast := p.program()
-	return ast
+func (p *Parser) Parse() ast.Stmt {
+	stmts := p.program()
+	return stmts
 }
 
 // program  ::= stmts
-func (p *Parser) program() ast.Node {
-	ast := p.stmts()
-	return ast
+func (p *Parser) program() ast.Stmt {
+	stmts := p.stmts()
+	return stmts
 }
 
 // stmts ::= stmt+
 func (p *Parser) stmts() *ast.Stmts {
 	stmts := []ast.Stmt{}
-	//TODO: when to stop parsing a statement?
-	for p.curr < len(p.tokens) {
+	for p.curr < len(p.tokens) && p.peek().Type != token.TOK_ELSE && p.peek().Type != token.TOK_END {
 		stmt := p.stmt()
 		stmts = append(stmts, stmt)
 	}
@@ -50,10 +50,10 @@ func (p *Parser) stmt() ast.Stmt {
 		return p.print_stmt("")
 	} else if p.peek().Type == token.TOK_PRINTLN {
 		return p.print_stmt("\n")
+	} else if p.peek().Type == token.TOK_IF {
+		return p.if_stmt()
 	}
-	// else if p.peek().Type == token.TOK_IF {
-	// 	return p.if_stmt()
-	// } else if p.peek().Type == token.TOK_WHILE {
+	// else if p.peek().Type == token.TOK_WHILE {
 	// 	return p.while_stmt()
 	// } else if p.peek().Type == token.TOK_FOR {
 	// 	return p.for_stmt()
@@ -63,6 +63,22 @@ func (p *Parser) stmt() ast.Stmt {
 	// 	// TODO
 	// }
 	return nil
+}
+
+// if_stmt  ::= 'if' expr 'then' stmts
+// ( 'else' stmts )? 'end'
+func (p *Parser) if_stmt() ast.Stmt {
+	p.expect(token.TOK_IF)
+	condition := p.expr()
+	p.expect(token.TOK_THEN)
+	then_stmts := p.stmts()
+	var else_stmts *ast.Stmts
+	if p.isNext(token.TOK_ELSE) {
+		p.advance()
+		else_stmts = p.stmts()
+	}
+	p.match(token.TOK_END)
+	return &ast.IfStmt{Condition: condition, ThenStmts: then_stmts, ElseStmts: else_stmts, Line: p.previousToken().Line}
 }
 
 // print_stmt ::= 'print' expr
@@ -226,26 +242,26 @@ func (p *Parser) peek() token.Token {
 	return p.tokens[p.curr]
 }
 
-// func (p *Parser) expect(expectedType token.TokenType) token.Token {
-// 	if p.curr >= len(p.tokens) {
-// 		utils.ParseError(fmt.Sprintf("Found %v at the end of parsing", p.previousToken().Lexeme), p.previousToken().Line)
-// 	} else if p.tokens[p.curr].Type == expectedType {
-// 		return p.advance()
-// 	} else {
-// 		utils.ParseError(fmt.Sprintf("Expected %v, found %v.", expectedType, p.peek().Lexeme), p.peek().Line)
-// 	}
-// 	return token.Token{} // unreachable, but required
-// }
+func (p *Parser) expect(expectedType token.TokenType) token.Token {
+	if p.curr >= len(p.tokens) {
+		utils.ParseError(fmt.Sprintf("Found %v at the end of parsing", p.previousToken().Lexeme), p.previousToken().Line)
+	} else if p.tokens[p.curr].Type == expectedType {
+		return p.advance()
+	} else {
+		utils.ParseError(fmt.Sprintf("Expected %v, found %v.", expectedType, p.peek().Lexeme), p.peek().Line)
+	}
+	return token.Token{} // unreachable, but required
+}
 
-// func (p *Parser) isNext(expectedType token.TokenType) bool {
-// 	if p.curr >= len(p.tokens) {
-// 		return false
-// 	}
-// 	return p.peek().Type == expectedType
-// }
+func (p *Parser) advance() token.Token {
+	tok := p.tokens[p.curr]
+	p.curr++
+	return tok
+}
 
-// func (p *Parser) advance() token.Token {
-// 	tok := p.tokens[p.curr]
-// 	p.curr++
-// 	return tok
-// }
+func (p *Parser) isNext(expectedType token.TokenType) bool {
+	if p.curr >= len(p.tokens) {
+		return false
+	}
+	return p.peek().Type == expectedType
+}

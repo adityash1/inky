@@ -21,7 +21,7 @@ func NewInterpreter() *Interpreter {
 	return &Interpreter{}
 }
 
-func (i *Interpreter) Interpret(node ast.Node) (string, interface{}, error) {
+func (i *Interpreter) Interpret(node ast.Node) (string, any, error) {
 	switch node := node.(type) {
 	case *ast.BinOp:
 		return i.visitBinOp(node)
@@ -51,12 +51,26 @@ func (i *Interpreter) Interpret(node ast.Node) (string, interface{}, error) {
 		}
 		fmt.Print(exprVal, node.End)
 		return "", 0, nil
+	case *ast.IfStmt:
+		condType, condVal, err := i.Interpret(node.Condition)
+		if err != nil {
+			return "", 0, err
+		}
+		if condType != TYPE_BOOL {
+			return "", 0, fmt.Errorf("expected boolean expression, got %s at line %d", condType, node.Line)
+		}
+		if condVal.(bool) {
+			i.Interpret(node.ThenStmts)
+		} else if node.ElseStmts != nil {
+			i.Interpret(node.ElseStmts)
+		}
+		return "", 0, nil
 	default:
 		return "", 0, fmt.Errorf("unknown expression type %T", node)
 	}
 }
 
-func (i *Interpreter) visitBinOp(node *ast.BinOp) (string, interface{}, error) {
+func (i *Interpreter) visitBinOp(node *ast.BinOp) (string, any, error) {
 	leftType, leftVal, err := i.Interpret(node.Left)
 	if err != nil {
 		return "", 0, err
@@ -221,7 +235,7 @@ func (i *Interpreter) visitBinOp(node *ast.BinOp) (string, interface{}, error) {
 	return "", 0, nil
 }
 
-func (i *Interpreter) visitUnOp(node *ast.UnOp) (string, interface{}, error) {
+func (i *Interpreter) visitUnOp(node *ast.UnOp) (string, any, error) {
 	operandType, operand, err := i.Interpret(node.Operand)
 	if err != nil {
 		return "", 0, err
@@ -261,7 +275,7 @@ func (i *Interpreter) visitUnOp(node *ast.UnOp) (string, interface{}, error) {
 	}
 }
 
-func (i *Interpreter) visitLogical(node *ast.LogicalOp) (string, interface{}, error) {
+func (i *Interpreter) visitLogical(node *ast.LogicalOp) (string, any, error) {
 	leftType, leftVal, err := i.Interpret(node.Left)
 	if err != nil {
 		return "", 0, err

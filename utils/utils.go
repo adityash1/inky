@@ -7,6 +7,15 @@ import (
 	"strings"
 )
 
+type wrappedStmts struct {
+	stmts *ast.Stmts
+	label string
+}
+
+func (w *wrappedStmts) String() string {
+	return fmt.Sprintf("%s: %s", w.label, w.stmts.String())
+}
+
 func PrettyPrint(node ast.Node) string {
 	lines := []string{}
 	buildTreeLines(node, "", "", &lines)
@@ -47,6 +56,22 @@ func buildTreeLines(node ast.Node, prefix string, childrenPrefix string, lines *
 		for _, stmt := range n.Stmts {
 			children = append(children, stmt)
 		}
+	case *ast.IfStmt:
+		nodeDesc = "● IfStmt"
+		children = []ast.Node{n.Condition}
+		if n.ThenStmts != nil {
+			children = append(children, &wrappedStmts{n.ThenStmts, "ThenBlock"})
+		}
+		if n.ElseStmts != nil {
+			children = append(children, &wrappedStmts{n.ElseStmts, "ElseBlock"})
+		}
+	case *wrappedStmts:
+		nodeDesc = fmt.Sprintf("● %s", n.label)
+		children = []ast.Node{}
+		for _, stmt := range n.stmts.Stmts {
+			children = append(children, stmt)
+		}
+
 	default:
 		nodeDesc = fmt.Sprintf("● Unknown: %T", n)
 	}
@@ -55,7 +80,7 @@ func buildTreeLines(node ast.Node, prefix string, childrenPrefix string, lines *
 	*lines = append(*lines, prefix+nodeDesc)
 
 	// Add all children except the last one
-	for i := 0; i < len(children)-1; i++ {
+	for i := range len(children) - 1 {
 		// For each child except the last, use "├── " as the connector
 		// and add "│   " to the prefix for its children
 		buildTreeLines(children[i], childrenPrefix+"├── ", childrenPrefix+"│   ", lines)

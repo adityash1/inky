@@ -1,0 +1,27 @@
+[
+	{
+		"label": "Debug Main",
+		"adapter": "Delve",
+		"program": "${ZED_WORKTREE_ROOT}/main.go",
+		"args": [
+			"--",
+			"script.txt"
+		],
+		"request": "launch",
+		"mode": "debug"
+	},
+	{
+		"label": "Debug Tests",
+		"adapter": "Delve",
+		"request": "launch",
+		"mode": "test",
+		"program": "."
+	},
+	{
+		"label": "Debug E2E Tests",
+		"adapter": "Delve",
+		"request": "launch",
+		"mode": "test",
+		"program": "${ZED_WORKTREE_ROOT}/e2e_test.go"
+	}
+]

@@ -124,3 +124,20 @@ type PrintStmt struct {
 func (p PrintStmt) String() string {
 	return fmt.Sprintf("PrintStmt(%s, end=%q)", p.Value.String(), p.End)
 }
+
+type IfStmt struct {
+	Condition Expr
+	ThenStmts *Stmts
+	ElseStmts *Stmts
+	Line      int
+}
+
+func (i IfStmt) String() string {
+	var elseStr string
+	if i.ElseStmts != nil {
+		elseStr = i.ElseStmts.String()
+	} else {
+		elseStr = "nil"
+	}
+	return fmt.Sprintf("IfStmt(%s, then:%s, else:%s)", i.Condition.String(), i.ThenStmts.String(), elseStr)
+}
