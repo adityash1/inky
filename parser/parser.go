@@ -52,16 +52,15 @@ func (p *Parser) stmt() ast.Stmt {
 		return p.print_stmt("\n")
 	} else if p.peek().Type == token.TOK_IF {
 		return p.if_stmt()
+	} else {
+		left := p.expr()
+		if p.match(token.TOK_ASSIGN) {
+			right := p.expr()
+			return &ast.AssignStmt{Left: left, Right: right, Line: p.previousToken().Line}
+		} else {
+			// TODO: handle function call in expression
+		}
 	}
-	// else if p.peek().Type == token.TOK_WHILE {
-	// 	return p.while_stmt()
-	// } else if p.peek().Type == token.TOK_FOR {
-	// 	return p.for_stmt()
-	// } else if p.peek().Type == token.TOK_FUNC {
-	// 	return p.func_decl()
-	// } else {
-	// 	// TODO
-	// }
 	return nil
 }
 
@@ -193,33 +192,34 @@ func (p *Parser) exponent() ast.Expr {
 	return expr
 }
 
-// ‹primary> ::= <integer> | ‹float> | '(' ‹expr> ')' | <bool> | <string>
+// ‹primary> ::= <integer> | ‹float> | '(' ‹expr> ')' | <bool> | <string> | <identifier>
 func (p *Parser) primary() ast.Expr {
 	if p.match(token.TOK_INTEGER) {
 		val, _ := strconv.Atoi(p.previousToken().Lexeme)
 		return &ast.Integer{Value: val, Line: p.previousToken().Line}
-	}
-	if p.match(token.TOK_FLOAT) {
+	} else if p.match(token.TOK_FLOAT) {
 		val, _ := strconv.ParseFloat(p.previousToken().Lexeme, 64)
 		return &ast.Float{Value: val, Line: p.previousToken().Line}
-	}
-	if p.match(token.TOK_TRUE) {
+	} else if p.match(token.TOK_TRUE) {
 		return &ast.Bool{Value: true, Line: p.previousToken().Line}
-	}
-	if p.match(token.TOK_FALSE) {
+	} else if p.match(token.TOK_FALSE) {
 		return &ast.Bool{Value: false, Line: p.previousToken().Line}
-	}
-	if p.match(token.TOK_STRING) {
+	} else if p.match(token.TOK_STRING) {
 		return &ast.String{Value: p.previousToken().Lexeme[1 : len(p.previousToken().Lexeme)-1], Line: p.previousToken().Line} // Remove the quotes from the string
-	}
-	if p.match(token.TOK_LPAREN) {
+	} else if p.match(token.TOK_LPAREN) {
 		expr := p.expr()
 		if !p.match(token.TOK_RPAREN) {
 			utils.ParseError("Error: ')' expected.", p.previousToken().Line)
 		}
 		return &ast.Grouping{Value: expr, Line: p.previousToken().Line}
+	} else {
+		identifier := p.expect(token.TOK_IDENTIFIER)
+		return ast.Identifier{
+			Name: identifier.Lexeme,
+			Line: p.previousToken().Line,
+		}
+		// TODO: function call inside expessions
 	}
-	return nil
 }
 
 // Utility methods

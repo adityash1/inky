@@ -141,3 +141,22 @@ func (i IfStmt) String() string {
 	}
 	return fmt.Sprintf("IfStmt(%s, then:%s, else:%s)", i.Condition.String(), i.ThenStmts.String(), elseStr)
 }
+
+type Identifier struct {
+	Name string
+	Line int
+}
+
+func (i Identifier) String() string {
+	return fmt.Sprintf("Identifier(%q)", i.Name)
+}
+
+type AssignStmt struct {
+	Left  Expr
+	Right Expr
+	Line  int
+}
+
+func (a AssignStmt) String() string {
+	return fmt.Sprintf("AssignStmt(%s, %s)", a.Left.String(), a.Right.String())
+}
